@@ -15,7 +15,6 @@ class SimpleModel(GAModel):
         for i, dim in enumerate(dims):
             if i < len(dims) - 1:
                 number = np.random.rand(dim, dims[i+1])
-                print(number)
                 self.DNA.append(number)
 
 
@@ -25,15 +24,14 @@ class SimpleModel(GAModel):
     def update(self, obs: Sequence) -> Tuple[int, ...]:
         x = obs
         for i, layer in enumerate(self.DNA):
-            print("DNA LAYER $$$$$$$$$$$$$$$$$$",layer)
+
             if not i == 0:
                 #tanh = hyperbolic tangent function
                 #often used as a activation fucntion ranges from -1 to 1
                 x = tanh(x)
-                print("TANH",x)
             x = x @ layer
-            print("#######################    x:", x)
-            #softmax converts a vector of numbers into a probability distribution
+
+            #softmax converts a vector of numbers into a probability distribution, summes sammen
         return softmax(x)
 
     def action(self, obs: Sequence):

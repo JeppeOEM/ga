@@ -8,13 +8,13 @@ class GAController(GameController):
     def __init__(self, game, display=True):
         self.display = display
         self.game = game
-        self.model =  SimpleModel(dims=(7,7,7,7))
+        self.model =  SimpleModel(dims=(7,4,4,4))
         #set refrence inside the game object to the controller
         self.game.controller = self
         # print(self.game.debug())
         # self.action_space = (Vector(0, -1), Vector(0, 1), Vector(1, 0), Vector(-1, 0))
         self.action_space = (Vector(0, -1), Vector(0, 1), Vector(1, 0), Vector(-1, 0))
-        print(self.game.controller)
+
         if self.display:
             pygame.init()
             self.screen = pygame.display.set_mode((game.grid.x * game.scale, game.grid.y * game.scale))
@@ -44,12 +44,15 @@ class GAController(GameController):
         s = self.game.snake.score
 
         obs = (dn, de, ds, dw, dfx, dfy, s)
-        print("obs:::::",obs)
+
 
         # action space
 
-        next_move = self.action_space[self.model.action(obs)]
-        print("next move",next_move)
+        # print(next_move)
+        test=self.model.action(obs)
+        print("next",test)
+        next_move = self.action_space[test]
+
         # display
         if self.display:
             self.screen.fill('black')
@@ -66,8 +69,8 @@ class GAController(GameController):
                 self.game.scale,
                 self.game.scale)
 
-    def action_space(self, obj):
-        return
+    # def action_space(self, obj):
+    #     return
 
     def __str__(self):
         return f"GAController(food={self.game.food},food={self.game.snake}, display={self.display})"
