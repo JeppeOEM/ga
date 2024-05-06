@@ -42,6 +42,7 @@ class GAController(GameController):
 
         # Concatenate all observations into a tuple or list
         return np.array([distance_to_top_wall, distance_to_bottom_wall, distance_to_left_wall, distance_to_right_wall, food_distance_x, food_distance_y])
+    
     def __del__(self):
         if self.display:
             pygame.quit()

@@ -4,8 +4,10 @@ import numpy
 import numpy as np
 from ga_models.ga_protocol import GAModel
 from ga_models.activation import sigmoid, tanh, softmax
-
-
+# from keras.models import Sequential
+# from keras.layers import Dense
+# from keras.utils import to_categorical
+from sklearn.neural_network import MLPClassifier
 class SimpleModel(GAModel):
     #  *, the * means that you must pass the parameter with a keyword, in this case dims="value"
     def __init__(self, *, dims: Tuple[int, ...], game):
@@ -13,6 +15,7 @@ class SimpleModel(GAModel):
         self.dims = dims
         self.DNA = []
         self.game = game
+        self.neural_network = self.create_neural_network()
         #populate with random numbers
         for i, dim in enumerate(dims):
             if i < len(dims) - 1:
@@ -38,7 +41,9 @@ class SimpleModel(GAModel):
                 x = tanh(x)
                 print("TANH",x)
             #multiplicating
-            x = x @ layer
+            # x = x @ layer
+            x = self.neural_network.predict(x.reshape(1, -1))
+            x = x.flatten()
             print("#######################    x:", x)
             #softmax converts a vector of numbers into a probability distribution
         return softmax(x)
@@ -66,3 +71,29 @@ class SimpleModel(GAModel):
 
     def DNA(self):
         return self.DNA
+
+    def observe_environment(self):
+        # Observation space: relative position of the snake's head to the walls and the food
+        # Position of the snake's head
+        head_x, head_y = self.game.snake.p.x, self.game.snake.p.y
+
+        # Distances to the walls
+        distance_to_top_wall = head_y
+        distance_to_bottom_wall = self.game.grid.y - head_y
+        distance_to_left_wall = head_x
+        distance_to_right_wall = self.game.grid.x - head_x
+
+        # Relative position to the food
+        food_x, food_y = self.game.food.p.x, self.game.food.p.y
+        food_distance_x = food_x - head_x
+        food_distance_y = food_y - head_y
+
+        # Concatenate all observations into a tuple or list
+        return np.array([distance_to_top_wall, distance_to_bottom_wall, distance_to_left_wall, distance_to_right_wall, food_distance_x, food_distance_y])
+
+
+    def create_neural_network(self):
+        model = MLPClassifier(hidden_layer_sizes=(64, 32),
+                              activation='relu',
+                              random_state=42)
+        return model
