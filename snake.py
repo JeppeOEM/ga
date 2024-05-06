@@ -4,6 +4,7 @@ from typing import Protocol
 import pygame
 from vector import Vector
 from game_controller import HumanController
+from typing import List
 
 
 class SnakeGame:
@@ -13,10 +14,14 @@ class SnakeGame:
         self.snake = Snake(game=self)
         self.food = Food(game=self)
 
+
     def run(self):
         running = True
         self.snake.debug()
+        valid_moves = self.snake.calculate_valid_moves()
         while running:
+            valid_moves = self.snake.calculate_valid_moves()  # Calculate valid moves
+            next_move = random.choice(valid_moves) if valid_moves else None
             next_move = self.controller.update()
             if next_move: self.snake.v = next_move
             self.snake.move()
@@ -76,3 +81,33 @@ class Snake:
         print('===')
         for i in self.body:
             print(str(i))
+
+    def calculate_valid_moves(self) -> List[Vector]:
+        """
+        Calculate valid moves based on the current state of the snake.
+        """
+        valid_moves = []
+
+        # Print snake's body positions
+        print("Snake's body positions:", self.body)
+        # Print current position
+        print("Current position:", self.p)
+
+
+        # Check if moving up is valid
+        if self.v != Vector(0, -1):  # Ensure it's not moving downwards
+            valid_moves.append(Vector(0, 1))
+
+        # Check if moving down is valid
+        if self.v != Vector(0, 1):  # Ensure it's not moving upwards
+            valid_moves.append(Vector(0, -1))
+
+        # Check if moving left is valid
+        if self.v != Vector(1, 0):  # Ensure it's not moving right
+            valid_moves.append(Vector(-1, 0))
+
+        # Check if moving right is valid
+        if self.v != Vector(-1, 0):  # Ensure it's not moving left
+            valid_moves.append(Vector(1, 0))
+
+        return valid_moves

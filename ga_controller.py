@@ -1,3 +1,4 @@
+import random
 from typing import Protocol
 from vector import Vector
 import pygame
@@ -67,9 +68,23 @@ class GAController(GameController):
         # action space
 
         next_move = self.action_space[self.model.action(obs)]
-        print("##############################################################")
-        print("##############################################################")
-        print("next move!!!!!!!!!!!!!!!!!!!!!!",next_move)
+
+        current_direction = self.game.snake.direction
+
+
+        valid_moves = []
+        if current_direction == 'NORTH':
+            valid_moves = ['NORTH', 'EAST', 'WEST']
+        elif current_direction == 'EAST':
+            valid_moves = ['NORTH', 'EAST', 'SOUTH']
+        elif current_direction == 'SOUTH':
+            valid_moves = ['EAST', 'SOUTH', 'WEST']
+        elif current_direction == 'WEST':
+            valid_moves = ['NORTH', 'SOUTH', 'WEST']
+
+        # If the next move is not valid, choose a random valid move
+        if next_move not in valid_moves:
+            next_move = random.choice(valid_moves)
         # display
         if self.display:
             self.screen.fill('black')
