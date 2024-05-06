@@ -15,8 +15,9 @@ class SimpleModel(GAModel):
         self.dims = dims
         self.DNA = []
         self.game = game
-        self.neural_network = self.create_neural_network()
+
         #populate with random numbers
+        #random weights
         for i, dim in enumerate(dims):
             if i < len(dims) - 1:
                 number = np.random.rand(dim, dims[i+1])
@@ -24,11 +25,23 @@ class SimpleModel(GAModel):
                 self.DNA.append(number)
 
 
+    def update(self, obs: Sequence) -> Tuple[int, ...]:
+        x = np.array(obs)  # Convert obs to numpy array
+        for i, layer in enumerate(self.DNA):
+            if not i == 0:
+                x = tanh(x)  # Apply activation function, like tanh
+            x = x @ layer  # Perform matrix multiplication
 
+        # Here we perform forward propagation using scikit-learn's MLPClassifier
+        model = MLPClassifier(hidden_layer_sizes=(4, 3), activation='relu', random_state=42)
+        model.coefs_ = [self.DNA[0], self.DNA[1], self.DNA[2]]  # Set the weights for input, hidden, and output layers
+        probabilities = model.predict_proba([x])  # Perform forward propagation (note: x is put inside a list)
+        return probabilities.flatten()
     #the @ symbol is used for matrix multiplication when used between two arrays or matrices.
     #supported by libraries like NumPy.
     def update(self, obs: Sequence) -> Tuple[int, ...]:
         x = obs
+        # x = np.array(obs)
         self.game.food
         self.game.snake
         self.game.grid
@@ -40,13 +53,19 @@ class SimpleModel(GAModel):
                 #often used as a activation fucntion ranges from -1 to 1
                 x = tanh(x)
                 print("TANH",x)
+                # print("GET WEIGHTS",self.get_weights_from_encoded(x))
             #multiplicating
-            # x = x @ layer
-            x = self.neural_network.predict(x.reshape(1, -1))
-            x = x.flatten()
+            x = x @ layer
+            # x = self.neural_network.predict(x.reshape(1, -1))
+            # x = x.flatten()
             print("#######################    x:", x)
             #softmax converts a vector of numbers into a probability distribution
         return softmax(x)
+
+    def softmax(z):
+        s = np.exp(z.T) / np.sum(np.exp(z.T), axis=1).reshape(-1, 1)
+        return s
+
 
     def action(self, obs: Sequence):
         return self.update(obs).argmax()
@@ -90,10 +109,3 @@ class SimpleModel(GAModel):
 
         # Concatenate all observations into a tuple or list
         return np.array([distance_to_top_wall, distance_to_bottom_wall, distance_to_left_wall, distance_to_right_wall, food_distance_x, food_distance_y])
-
-
-    def create_neural_network(self):
-        model = MLPClassifier(hidden_layer_sizes=(64, 32),
-                              activation='relu',
-                              random_state=42)
-        return model

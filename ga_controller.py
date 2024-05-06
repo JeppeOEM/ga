@@ -10,7 +10,7 @@ class GAController(GameController):
     def __init__(self, game, display=True):
         self.display = display
         self.game = game
-        self.model =  SimpleModel(dims=(7,4,4,7), game=self.game )
+        self.model =  SimpleModel(dims=(7,9,15,3), game=self.game )
         #set refrence inside the game object to the controller
         self.game.controller = self
         # print(self.game.debug())
@@ -42,7 +42,7 @@ class GAController(GameController):
 
         # Concatenate all observations into a tuple or list
         return np.array([distance_to_top_wall, distance_to_bottom_wall, distance_to_left_wall, distance_to_right_wall, food_distance_x, food_distance_y])
-    
+
     def __del__(self):
         if self.display:
             pygame.quit()

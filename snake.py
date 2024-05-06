@@ -18,10 +18,10 @@ class SnakeGame:
     def run(self):
         running = True
         self.snake.debug()
-        valid_moves = self.snake.calculate_valid_moves()
+        # valid_moves = self.snake.calculate_valid_moves()
         while running:
-            valid_moves = self.snake.calculate_valid_moves()  # Calculate valid moves
-            next_move = random.choice(valid_moves) if valid_moves else None
+            # valid_moves = self.snake.calculate_valid_moves()  # Calculate valid moves
+            # next_move = random.choice(valid_moves) if valid_moves else None
             next_move = self.controller.update()
             if next_move: self.snake.v = next_move
             self.snake.move()
