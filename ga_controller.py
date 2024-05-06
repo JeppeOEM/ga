@@ -12,6 +12,8 @@ class GAController(GameController):
         #set refrence inside the game object to the controller
         self.game.controller = self
         # print(self.game.debug())
+        # self.action_space = (Vector(0, -1), Vector(0, 1), Vector(1, 0), Vector(-1, 0))
+        self.action_space = (Vector(0, -1), Vector(0, 1), Vector(1, 0), Vector(-1, 0))
         print(self.game.controller)
         if self.display:
             pygame.init()
@@ -20,7 +22,6 @@ class GAController(GameController):
             self.color_snake_head = (0, 255, 0)
             self.color_food = (255, 0, 0)
             #Possible directions to move
-            self.action_space = (Vector(0, -1), Vector(0, 1), Vector(1, 0), Vector(-1, 0))
 
     def __del__(self):
         if self.display:
@@ -46,8 +47,9 @@ class GAController(GameController):
         print("obs:::::",obs)
 
         # action space
-        next_move = self.action_space[self.model.action(obs)]
 
+        next_move = self.action_space[self.model.action(obs)]
+        print("next move",next_move)
         # display
         if self.display:
             self.screen.fill('black')
