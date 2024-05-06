@@ -3,12 +3,13 @@ from vector import Vector
 import pygame
 from game_controller import GameController
 from ga_models.ga_simple import SimpleModel
+import numpy
 
 class GAController(GameController):
     def __init__(self, game, display=True):
         self.display = display
         self.game = game
-        self.model =  SimpleModel(dims=(7,7,7,7))
+        self.model =  SimpleModel(dims=(7,4,4,7), game=self.game )
         #set refrence inside the game object to the controller
         self.game.controller = self
         # print(self.game.debug())
@@ -22,7 +23,24 @@ class GAController(GameController):
             self.color_snake_head = (0, 255, 0)
             self.color_food = (255, 0, 0)
             #Possible directions to move
+    def observe_environment(self):
+        # Observation space: relative position of the snake's head to the walls and the food
+        # Position of the snake's head
+        head_x, head_y = self.game.snake.p.x, self.game.snake.p.y
 
+        # Distances to the walls
+        distance_to_top_wall = head_y
+        distance_to_bottom_wall = self.game.grid.y - head_y
+        distance_to_left_wall = head_x
+        distance_to_right_wall = self.game.grid.x - head_x
+
+        # Relative position to the food
+        food_x, food_y = self.game.food.p.x, self.game.food.p.y
+        food_distance_x = food_x - head_x
+        food_distance_y = food_y - head_y
+
+        # Concatenate all observations into a tuple or list
+        return np.array([distance_to_top_wall, distance_to_bottom_wall, distance_to_left_wall, distance_to_right_wall, food_distance_x, food_distance_y])
     def __del__(self):
         if self.display:
             pygame.quit()
@@ -49,7 +67,9 @@ class GAController(GameController):
         # action space
 
         next_move = self.action_space[self.model.action(obs)]
-        print("next move",next_move)
+        print("##############################################################")
+        print("##############################################################")
+        print("next move!!!!!!!!!!!!!!!!!!!!!!",next_move)
         # display
         if self.display:
             self.screen.fill('black')
@@ -67,6 +87,7 @@ class GAController(GameController):
                 self.game.scale)
 
     def action_space(self, obj):
+        print(obj,"ACTION SPACE")
         return
 
     def __str__(self):
