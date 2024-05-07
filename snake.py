@@ -1,3 +1,4 @@
+import math
 import random
 from collections import deque
 from typing import List, Protocol
@@ -15,10 +16,11 @@ class SnakeGame:
         self.step = 0
 
     @property
-    def final_result(self):
-        return [self.step, self.snake.score]
-
-
+    def fitness(self):
+        if self.snake.score == 0:
+            return 0  # or handle this case according to your logic
+        fit = self.step / (self.snake.score * 10)
+        return fit
 
     def run(self):
         running = True
@@ -26,7 +28,7 @@ class SnakeGame:
 
         while running:
             valid_moves = self.snake.calculate_valid_moves()
-            next_move = self.controller.update(valid_moves)
+            next_move = self.controller.update()
             self.step += 1
             next_move = random.choice(valid_moves) if valid_moves else None
             if next_move:

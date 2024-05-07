@@ -30,9 +30,9 @@ class GAController(GameController):
         if self.display:
             pygame.quit()
 
-    def update(self,valid_moves) -> Vector:
+    def update(self) -> Vector:
         # observation space
-        print(valid_moves)
+
         # delta north, east, south, west
         dn = self.game.snake.p.y
         de = self.game.grid.x - self.game.snake.p.x
@@ -63,8 +63,8 @@ class GAController(GameController):
             valid_moves = ['NORTH', 'SOUTH', 'WEST']
 
         # If the next move is not valid, choose a random valid move
-        if next_move not in valid_moves:
-            next_move = random.choice(valid_moves)
+        # if next_move not in valid_moves:
+        #     next_move = random.choice(valid_moves)
         # action space
 
         # print(next_move)
