@@ -49,7 +49,7 @@ class GAController(GameController):
         obs = (dn, de, ds, dw, dfx, dfy, s)
 
         current_direction = self.game.snake.direction()
-        print(cu)
+        print(current_direction)
         next_move_index = self.model.action(obs)
         next_move = self.action_space[next_move_index]
         valid_moves = []
