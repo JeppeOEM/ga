@@ -16,8 +16,9 @@ def init_population(pop_size):
     population = []
     for _ in range(pop_size):
         game = SnakeGame()
-        controller = GAController()
-    return (game, controller)
+        controller = GAController(game)
+        population.append((game, controller))
+    return population
 
 class Population:
     def __init__(self, population_size: int, generations: number):
@@ -25,9 +26,10 @@ class Population:
         self.population_size = population_size
         self.population = init_population(population_size)
 
-    def mutate_pop(self):
-        for pop in self.population:
-            pop.game.mutate(0.05)
+    # def mutate_pop(self):
+    #     for pop in self.population:
+    #         print(pop)
+    #         pop.snake.game.mutate(0.05)
     def selection(self):
         self.population
         selected = []
@@ -35,9 +37,8 @@ class Population:
         for population_tuple in self.population:
             game = population_tuple[0]
             obj_controller = population_tuple[1]
-            controller = obj_controller(game)
             game.run()
-            results.append(controller)
+            results.append(obj_controller)
 
         results = remove_lowest_values(results)
         return results
@@ -48,18 +49,23 @@ class Population:
             mom = self.population[i+1]
             baby = dad + mom
             baby2 = dad + mom
-            baby.mutate(0.05)
-            baby2.mutate(0.05)
-            babies.append(baby,baby2)
+            # baby.mutate(0.05)
+            # baby2.mutate(0.05)
+            babies.append(baby)
+            babies.append(baby2)
         return babies
 
     #         population.append(controller)
 
-pop = Population(2_000, 100)
-while pop.generations < 100:
-    pop.mutate_pop()
+pop = Population(2, 100)
+print(pop.generations)
+i = 0
+while i < 3:
+    print("ddd")
+    # pop.mutate_pop()
     pop.selection()
     pop.mate_in_pairs()
+    i =+ 1
 
 
 
@@ -103,6 +109,3 @@ def get_fitness(game):
     #     parents = kill_half(population)
     #     offspring = mate_in_pairs(parents)
     #     population = parents.append(offspring)
-
-
-generations(100, 100)
