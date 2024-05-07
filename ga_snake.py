@@ -28,10 +28,25 @@ for game in population:
     controller = GAController(game)
     game.run()
 
+
+
 population.sort(key=get_fitness, reverse=True)
-
-
 population = remove_lowest_values(population)
 
 
 print(population)
+
+def generations(generations, pop_size):
+    gens = []
+    pop = [TSM(cities_map) for _ in range(pop_size)]
+
+    for generation in range(generations):
+        reduced_pop = kill_half(pop)
+        offspring = create_offsprings(reduced_pop)
+        # print(offspring)
+        # print(reduced_pop)
+        new_gen = reduced_pop.append(offspring)
+        gens.append(new_gen)
+        print(len(gens))
+
+generations(10, 100)
