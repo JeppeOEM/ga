@@ -1,11 +1,12 @@
-from typing import Protocol
+import random
+from typing import List, Protocol
 from vector import Vector
 import pygame
 from game_controller import GameController
 from ga_models.ga_simple import SimpleModel
 
 class GAController(GameController):
-    def __init__(self, game, display=True):
+    def __init__(self, game, display=False):
         self.display = display
         self.game = game
         self.model =  SimpleModel(dims=(7,4,4,4))
@@ -15,6 +16,7 @@ class GAController(GameController):
         # self.action_space = (Vector(0, -1), Vector(0, 1), Vector(1, 0), Vector(-1, 0))
         self.action_space = (Vector(0, -1), Vector(0, 1), Vector(1, 0), Vector(-1, 0))
 
+
         if self.display:
             pygame.init()
             self.screen = pygame.display.set_mode((game.grid.x * game.scale, game.grid.y * game.scale))
@@ -22,12 +24,13 @@ class GAController(GameController):
             self.color_snake_head = (0, 255, 0)
             self.color_food = (255, 0, 0)
             #Possible directions to move
+            self.step_count = 0
 
     def __del__(self):
         if self.display:
             pygame.quit()
 
-    def update(self) -> Vector:
+    def update(self,valid_moves) -> Vector:
         # observation space
 
         # delta north, east, south, west
@@ -45,13 +48,28 @@ class GAController(GameController):
 
         obs = (dn, de, ds, dw, dfx, dfy, s)
 
+        current_direction = self.game.snake.direction
+        next_move_index = self.model.action(obs)
+        next_move = self.action_space[next_move_index]
+        valid_moves = []
+        if current_direction == 'NORTH':
+            valid_moves = ['NORTH', 'EAST', 'WEST']
+        elif current_direction == 'EAST':
+            valid_moves = ['NORTH', 'EAST', 'SOUTH']
+        elif current_direction == 'SOUTH':
+            valid_moves = ['EAST', 'SOUTH', 'WEST']
+        elif current_direction == 'WEST':
+            valid_moves = ['NORTH', 'SOUTH', 'WEST']
 
+        # If the next move is not valid, choose a random valid move
+        if next_move not in valid_moves:
+            next_move = random.choice(valid_moves)
         # action space
 
         # print(next_move)
-        test=self.model.action(obs)
-        print("next",test)
-        next_move = self.action_space[test]
+        # test=self.model.action(obs)
+        # print("next",test)
+        # next_move = self.action_space[test]
 
         # display
         if self.display:

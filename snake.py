@@ -1,6 +1,6 @@
 import random
 from collections import deque
-from typing import Protocol
+from typing import List, Protocol
 import pygame
 from vector import Vector
 from game_controller import HumanController
@@ -12,12 +12,27 @@ class SnakeGame:
         self.scale = scale
         self.snake = Snake(game=self)
         self.food = Food(game=self)
+        self.step = 0
+
+    @property
+    def final_result(self):
+        return [self.step, self.snake.score]
+
+
 
     def run(self):
         running = True
         self.snake.debug()
+
         while running:
-            next_move = self.controller.update()
+            valid_moves = self.snake.calculate_valid_moves()
+            next_move = self.controller.update(valid_moves)
+            self.step += 1
+            next_move = random.choice(valid_moves) if valid_moves else None
+            if next_move:
+                self.snake.v = next_move
+            else:
+                running = False
             if next_move: self.snake.v = next_move
             self.snake.move()
             if not self.snake.p.within(self.grid):
@@ -29,7 +44,7 @@ class SnakeGame:
             if self.snake.p == self.food.p:
                 self.snake.add_score()
                 self.food = Food(game=self)
-        print(f'{message} ... Score: {self.snake.score}')
+        print(f'{message} ... Score: {self.snake.score}....')
 
 
 class Food:
@@ -46,8 +61,23 @@ class Snake:
         self.body = deque()
         self.body.append(Vector.random_within(self.game.grid))
 
+    def direction(self):
+        if self.v == Vector(0, 1):
+            return 'NORTH'
+        elif self.v == Vector(1, 0):
+            return 'EAST'
+        elif self.v == Vector(0, -1):
+            return 'SOUTH'
+        elif self.v == Vector(-1, 0):
+            return 'WEST'
+        else:
+            return None  # Handle undefined direction
     def move(self):
         self.p = self.p + self.v
+    @property
+    def get_score(self):
+        return self.score
+
 
     @property
     def cross_own_tail(self):
@@ -76,3 +106,32 @@ class Snake:
         print('===')
         for i in self.body:
             print(str(i))
+    def calculate_valid_moves(self) -> List[Vector]:
+        """
+        Calculate valid moves based on the current state of the snake.
+        """
+        valid_moves = []
+
+        # Print snake's body positions
+        print("Snake's body positions:", self.body)
+        # Print current position
+        print("Current position:", self.p)
+
+
+        # Check if moving up is valid
+        if self.v != Vector(0, -1):  # Ensure it's not moving downwards
+            valid_moves.append(Vector(0, 1))
+
+        # Check if moving down is valid
+        if self.v != Vector(0, 1):  # Ensure it's not moving upwards
+            valid_moves.append(Vector(0, -1))
+
+        # Check if moving left is valid
+        if self.v != Vector(1, 0):  # Ensure it's not moving right
+            valid_moves.append(Vector(-1, 0))
+
+        # Check if moving right is valid
+        if self.v != Vector(-1, 0):  # Ensure it's not moving left
+            valid_moves.append(Vector(1, 0))
+
+        return valid_moves
