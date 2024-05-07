@@ -32,7 +32,7 @@ class GAController(GameController):
 
     def update(self,valid_moves) -> Vector:
         # observation space
-
+        print(valid_moves)
         # delta north, east, south, west
         dn = self.game.snake.p.y
         de = self.game.grid.x - self.game.snake.p.x
@@ -48,7 +48,8 @@ class GAController(GameController):
 
         obs = (dn, de, ds, dw, dfx, dfy, s)
 
-        current_direction = self.game.snake.direction
+        current_direction = self.game.snake.direction()
+        print(cu)
         next_move_index = self.model.action(obs)
         next_move = self.action_space[next_move_index]
         valid_moves = []
