@@ -15,6 +15,7 @@ class GAController(GameController):
             self.model = SimpleModel(dims=(7, 4, 4, 4))
         #set refrence inside the game object to the controller
         self.game.controller = self
+        # self.game.snake.controller = self
         # print(self.game.debug())
         # self.action_space = (Vector(0, -1), Vector(0, 1), Vector(1, 0), Vector(-1, 0))
         self.action_space = (Vector(0, -1), Vector(0, 1), Vector(1, 0), Vector(-1, 0))
@@ -32,6 +33,8 @@ class GAController(GameController):
     def __del__(self):
         if self.display:
             pygame.quit()
+    def play_again(self):
+        self.game.run()
 
     def update(self) -> Vector:
         # observation space
@@ -51,19 +54,9 @@ class GAController(GameController):
 
         obs = (dn, de, ds, dw, dfx, dfy, s)
 
-        current_direction = self.game.snake.direction()
-        # print(current_direction)
         next_move_index = self.model.action(obs)
         next_move = self.action_space[next_move_index]
-        valid_moves = []
-        if current_direction == 'NORTH':
-            valid_moves = ['NORTH', 'EAST', 'WEST']
-        elif current_direction == 'EAST':
-            valid_moves = ['NORTH', 'EAST', 'SOUTH']
-        elif current_direction == 'SOUTH':
-            valid_moves = ['EAST', 'SOUTH', 'WEST']
-        elif current_direction == 'WEST':
-            valid_moves = ['NORTH', 'SOUTH', 'WEST']
+
 
         # If the next move is not valid, choose a random valid move
         # if next_move not in valid_moves:
@@ -95,4 +88,4 @@ class GAController(GameController):
     #     return
 
     def __str__(self):
-        return f"GAController(food={self.game.food},food={self.game.snake}, display={self.display})"
+        return f"__STR__:GAController(food={self.game.food},food={self.game.snake}, display={self.display})"

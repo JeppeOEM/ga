@@ -14,12 +14,15 @@ class SnakeGame:
         self.snake = Snake(game=self)
         self.food = Food(game=self)
         self.step = 0
+        self.moves_without_food = 0
+        self.max_moves_without_food = 60
+
 
     @property
     def fitness(self):
         if self.snake.score == 0:
             return 0  # or handle this case according to your logic
-        fit = self.step / (self.snake.score * 10)
+        fit = (self.step / (self.snake.score * 20)) + (self.snake.direction_changes * 0.1)
         return fit
 
     def run(self):
@@ -27,10 +30,12 @@ class SnakeGame:
         # self.snake.debug()
 
         while running:
-            valid_moves = self.snake.calculate_valid_moves()
+            # valid_moves = self.snake.calculate_valid_moves()
             next_move = self.controller.update()
+            print(next_move)
             self.step += 1
-            next_move = random.choice(valid_moves) if valid_moves else None
+            self.moves_without_food += 1
+            # next_move = random.choice(valid_moves) if valid_moves else None
             if next_move:
                 self.snake.v = next_move
             else:
@@ -46,6 +51,11 @@ class SnakeGame:
             if self.snake.p == self.food.p:
                 self.snake.add_score()
                 self.food = Food(game=self)
+                self.moves_without_food = 0
+            if self.moves_without_food > self.max_moves_without_food:
+                self.snake.score = 0
+                running = False
+                message = 'Game over! Took too many moves without eating!'
         print(f'{message} ... Score: {self.snake.score}....')
 
 
@@ -62,20 +72,57 @@ class Snake:
         self.v = Vector(0, 0)
         self.body = deque()
         self.body.append(Vector.random_within(self.game.grid))
+        self.last_move = None
+        self.repetion_count = 0
+        self.opposite_move_count = 0
+        self.direction_changes = 0
 
-    def direction(self):
-        if self.v == Vector(0, 1):
+    def direction(self, vector):
+        if vector == Vector(0, 1):
             return 'NORTH'
-        elif self.v == Vector(1, 0):
+        elif vector == Vector(1, 0):
             return 'EAST'
-        elif self.v == Vector(0, -1):
+        elif vector == Vector(0, -1):
             return 'SOUTH'
-        elif self.v == Vector(-1, 0):
+        elif vector == Vector(-1, 0):
             return 'WEST'
         else:
-            return None  # Handle undefined direction
+            raise ValueError(f"Unknown direction for vector {vector}")
+
+    def same_direction_count(self):
+        if self.last_move is not None and self.direction(self.v) == self.direction(self.last_move):
+            self.repetition_count += 1
+        else:
+            self.repetition_count = 0  # Reset if direction changes
+
+    def opposite_direction_count(self):
+        opposite_direction = {
+            'NORTH': 'SOUTH',
+            'EAST': 'WEST',
+            'SOUTH': 'NORTH',
+            'WEST': 'EAST'
+        }
+
+        if self.last_move is not None:
+            current_direction = self.direction(self.v)
+            last_direction = self.direction(self.last_move)
+            if current_direction == opposite_direction.get(last_direction):
+                self.opposite_move_count += 1
+
+
+
     def move(self):
+        self.same_direction_count()
+        self.opposite_direction_count()
+        if self.last_move is not None and self.v != self.last_move:
+            self.direction_changes += 1
+        if self.opposite_move_count > 5:
+            valid_moves = self.calculate_valid_moves()
+            current_direction = self.direction(self.v)
+            self.v = self.choose_valid_move(valid_moves, current_direction)
         self.p = self.p + self.v
+        self.last_move = self.v
+
     @property
     def get_score(self):
         return self.score
@@ -114,26 +161,44 @@ class Snake:
         """
         valid_moves = []
 
-        # Print snake's body positions
-        # print("Snake's body positions:", self.body)
-        # Print current position
-        # print("Current position:", self.p)
-
-
         # Check if moving up is valid
         if self.v != Vector(0, -1):  # Ensure it's not moving downwards
-            valid_moves.append(Vector(0, 1))
+            move_up = Vector(0, 1)
+            valid_moves.append(move_up)
 
         # Check if moving down is valid
         if self.v != Vector(0, 1):  # Ensure it's not moving upwards
-            valid_moves.append(Vector(0, -1))
+            move_down = Vector(0, -1)
+            valid_moves.append(move_down)
 
         # Check if moving left is valid
         if self.v != Vector(1, 0):  # Ensure it's not moving right
-            valid_moves.append(Vector(-1, 0))
+            move_left = Vector(-1, 0)
+            valid_moves.append(move_left)
 
         # Check if moving right is valid
         if self.v != Vector(-1, 0):  # Ensure it's not moving left
-            valid_moves.append(Vector(1, 0))
+            move_right = Vector(1, 0)
+            valid_moves.append(move_right)
 
         return valid_moves
+
+    def choose_valid_move(self, valid_moves: List[Vector], current_direction: str) -> Vector:
+        """
+        Choose a valid move that is not opposite to the current direction.
+        """
+        opposite_direction = {
+            'NORTH': Vector(0, -1),
+            'EAST': Vector(-1, 0),
+            'SOUTH': Vector(0, 1),
+            'WEST': Vector(1, 0)
+        }
+
+        # Include the current direction but exclude the opposite direction
+        valid_moves = [move for move in valid_moves if move != opposite_direction[current_direction] or move == self.v]
+
+        # If no valid moves remain, just return the current direction (safe fallback)
+        if not valid_moves:
+            return self.v
+
+        return random.choice(valid_moves)
