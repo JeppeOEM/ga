@@ -115,9 +115,9 @@ class Snake:
         valid_moves = []
 
         # Print snake's body positions
-        print("Snake's body positions:", self.body)
+        # print("Snake's body positions:", self.body)
         # Print current position
-        print("Current position:", self.p)
+        # print("Current position:", self.p)
 
 
         # Check if moving up is valid
