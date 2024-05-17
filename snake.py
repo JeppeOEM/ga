@@ -24,7 +24,7 @@ class SnakeGame:
 
     def run(self):
         running = True
-        self.snake.debug()
+        # self.snake.debug()
 
         while running:
             valid_moves = self.snake.calculate_valid_moves()

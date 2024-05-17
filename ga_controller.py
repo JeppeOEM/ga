@@ -6,10 +6,13 @@ from game_controller import GameController
 from ga_models.ga_simple import SimpleModel
 
 class GAController(GameController):
-    def __init__(self, game, display=False):
+    def __init__(self, game, model=None, display=False):
         self.display = display
         self.game = game
-        self.model =  SimpleModel(dims=(7,4,4,4))
+        if model:
+            self.model = model  # Use the provided model
+        else:
+            self.model = SimpleModel(dims=(7, 4, 4, 4))
         #set refrence inside the game object to the controller
         self.game.controller = self
         # print(self.game.debug())
