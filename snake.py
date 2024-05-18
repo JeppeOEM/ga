@@ -18,21 +18,29 @@ class SnakeGame:
         self.total_score = 0
         self.total_moves_no_food = 0
 
-
     @property
     def fitness(self):
-        if self.snake.score == 0:
-            return 0  # or handle this case according to your logic
-        fit =  self.total_score * 100
-        fit = fit / self.step
-        fit = fit / self.death * 100
-        return fit
+        score_weight = 500
+        steps_weight = 0.1
+        death_penalty = 1
+        exploration = 0
+        if self.snake.step_game > 80:
+            exploration = 100
+
+
+        self.step * steps_weight
+        no_food_penalty = 1
+        no_food = (-self.total_moves_no_food * no_food_penalty)
+        score = self.snake.score * score_weight
+        fitness = (score+no_food+exploration)
+        return fitness
 
     def run(self):
         running = True
         # self.snake.debug()
 
         while running:
+            message=""
             # valid_moves = self.snake.calculate_valid_moves()
             next_move = self.controller.update()
             # print(next_move)
@@ -48,28 +56,28 @@ class SnakeGame:
             if not self.snake.p.within(self.grid):
                 running = False
                 message = 'Game over! You crashed into the wall!'
-                self.total_score += self.snake.score
                 self.death += 1
-                self.total_moves_no_food += self.snake.moves_without_food
+                self.snake.step_game = 0
                 self.snake.moves_without_food = 0
             if self.snake.cross_own_tail:
                 running = False
                 message = 'Game over! You hit your own tail!'
-                self.total_score += self.snake.score
-                self.total_moves_no_food += self.snake.moves_without_food
+                self.snake.step_game = 0
                 self.snake.moves_without_food = 0
             if self.snake.p == self.food.p:
                 self.snake.add_score()
                 self.food = Food(game=self)
                 self.snake.moves_without_food = 0
+                message = 'Yum 1 food eaten'
             if self.snake.moves_without_food > self.snake.max_moves_without_food:
                 self.snake.score = 0
                 running = False
                 self.death += 1
-                self.total_moves_no_food += self.snake.moves_without_food
                 self.snake.moves_without_food = 0
+                self.snake.step_game = 0
                 message = 'Game over! Took too many moves without eating!'
-        print(f'{message} ... Score: {self.snake.score}....')
+        if self.snake.score > 0:
+            print(f'{message} ... Score: {self.snake.score}....')
 
 
 class Food:
@@ -92,6 +100,7 @@ class Snake:
         self.opposite_move_count = 0
         self.direction_changes = 0
         self.max_moves_without_food = 200
+        self.step_game = 0
     def direction(self, vector):
         if vector == Vector(0, 1):
             return 'NORTH'
