@@ -14,15 +14,18 @@ class SnakeGame:
         self.snake = Snake(game=self)
         self.food = Food(game=self)
         self.step = 0
-        self.moves_without_food = 0
-        self.max_moves_without_food = 60
+        self.death = 0
+        self.total_score = 0
+        self.total_moves_no_food = 0
 
 
     @property
     def fitness(self):
         if self.snake.score == 0:
             return 0  # or handle this case according to your logic
-        fit = (self.step / (self.snake.score * 20)) + (self.snake.direction_changes * 0.1)
+        fit =  self.total_score * 100
+        fit = fit / self.step
+        fit = fit / self.death * 100
         return fit
 
     def run(self):
@@ -32,9 +35,9 @@ class SnakeGame:
         while running:
             # valid_moves = self.snake.calculate_valid_moves()
             next_move = self.controller.update()
-            print(next_move)
+            # print(next_move)
             self.step += 1
-            self.moves_without_food += 1
+            self.snake.moves_without_food += 1
             # next_move = random.choice(valid_moves) if valid_moves else None
             if next_move:
                 self.snake.v = next_move
@@ -45,16 +48,26 @@ class SnakeGame:
             if not self.snake.p.within(self.grid):
                 running = False
                 message = 'Game over! You crashed into the wall!'
+                self.total_score += self.snake.score
+                self.death += 1
+                self.total_moves_no_food += self.snake.moves_without_food
+                self.snake.moves_without_food = 0
             if self.snake.cross_own_tail:
                 running = False
                 message = 'Game over! You hit your own tail!'
+                self.total_score += self.snake.score
+                self.total_moves_no_food += self.snake.moves_without_food
+                self.snake.moves_without_food = 0
             if self.snake.p == self.food.p:
                 self.snake.add_score()
                 self.food = Food(game=self)
-                self.moves_without_food = 0
-            if self.moves_without_food > self.max_moves_without_food:
+                self.snake.moves_without_food = 0
+            if self.snake.moves_without_food > self.snake.max_moves_without_food:
                 self.snake.score = 0
                 running = False
+                self.death += 1
+                self.total_moves_no_food += self.snake.moves_without_food
+                self.snake.moves_without_food = 0
                 message = 'Game over! Took too many moves without eating!'
         print(f'{message} ... Score: {self.snake.score}....')
 
@@ -72,11 +85,13 @@ class Snake:
         self.v = Vector(0, 0)
         self.body = deque()
         self.body.append(Vector.random_within(self.game.grid))
-        self.last_move = None
+        self.moves_without_food = 0
+        #Starting point is last move to begin with
+        self.last_move = self.body[0]
         self.repetion_count = 0
         self.opposite_move_count = 0
         self.direction_changes = 0
-
+        self.max_moves_without_food = 200
     def direction(self, vector):
         if vector == Vector(0, 1):
             return 'NORTH'
@@ -112,20 +127,23 @@ class Snake:
 
 
     def move(self):
-        self.same_direction_count()
-        self.opposite_direction_count()
-        if self.last_move is not None and self.v != self.last_move:
-            self.direction_changes += 1
-        if self.opposite_move_count > 5:
-            valid_moves = self.calculate_valid_moves()
-            current_direction = self.direction(self.v)
-            self.v = self.choose_valid_move(valid_moves, current_direction)
+        # self.same_direction_count()
+        # self.opposite_direction_count()
+        # if self.last_move is not None and self.v != self.last_move:
+        #     self.direction_changes += 1
+        # if self.opposite_move_count > 5:
+        #     valid_moves = self.calculate_valid_moves()
+        #     current_direction = self.direction(self.v)
+        #     self.v = self.choose_valid_move(valid_moves, current_direction)
         self.p = self.p + self.v
         self.last_move = self.v
 
     @property
     def get_score(self):
         return self.score
+
+    def get_last_move(self):
+        return self.last_move
 
 
     @property
@@ -155,33 +173,7 @@ class Snake:
         print('===')
         for i in self.body:
             print(str(i))
-    def calculate_valid_moves(self) -> List[Vector]:
-        """
-        Calculate valid moves based on the current state of the snake.
-        """
-        valid_moves = []
 
-        # Check if moving up is valid
-        if self.v != Vector(0, -1):  # Ensure it's not moving downwards
-            move_up = Vector(0, 1)
-            valid_moves.append(move_up)
-
-        # Check if moving down is valid
-        if self.v != Vector(0, 1):  # Ensure it's not moving upwards
-            move_down = Vector(0, -1)
-            valid_moves.append(move_down)
-
-        # Check if moving left is valid
-        if self.v != Vector(1, 0):  # Ensure it's not moving right
-            move_left = Vector(-1, 0)
-            valid_moves.append(move_left)
-
-        # Check if moving right is valid
-        if self.v != Vector(-1, 0):  # Ensure it's not moving left
-            move_right = Vector(1, 0)
-            valid_moves.append(move_right)
-
-        return valid_moves
 
     def choose_valid_move(self, valid_moves: List[Vector], current_direction: str) -> Vector:
         """

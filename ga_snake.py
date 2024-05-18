@@ -31,10 +31,13 @@ def print_max(population):
 
 
 class GeneticAlgorithm:
-    def __init__(self, population_size=60, generations=5):
+    def __init__(self, population_size=60, generations=5, keep_ratio=0.35, elite=2):
         self.population_size = population_size
         self.generations = generations
         self.population = []
+        self.keep_ratio = keep_ratio
+        self.elite = elite
+        self.pop = []
 
     def initialize_population(self):
         for _ in range(self.population_size):
@@ -48,58 +51,65 @@ class GeneticAlgorithm:
         # self.print_fitness_values()
 
 
-    def evolve_generations(self):
-        for _ in range(self.generations):
-            self.generations -= 1
-            new_pop = []
-            #
-            print(self.population)
-            print("lol")
-            for i in range(len(self.population)):
-                controller = self.population[i]
-                # print(self.population)
-                controller.game.run()
+    def create_population(self):
+        for gen in range(self.generations):
 
-                # Now you can access the index (idx) and the controller object in thi
+            for controller in self.population:
+                for i in range(self.population_size):
+                    # print(self.population)
+                    controller.game.run()
+            self.pop.append(controller)
+                    # Now you can access the index (idx) and the controller object in thi
 
-            self.population = sorted(self.population, key=lambda x: x.game.fitness, reverse=True)
-            self.population = self.population[:len(self.population) // 2]
-            babies = self.mate_in_pairs()
-            self.population.extend(babies)
+                # Sort self.population by fitness
+        self.pop = sorted(self.pop, key=lambda x: x.game.fitness, reverse=True)
+
+                # Determine how many top performers to keep based on the ratio
+        best = int(len(self.pop) * self.keep_ratio)
+        elite = self.pop[:3]
+        self.pop = self.pop[:best]
+                # Retain top performers
+        self.pop = self.pop[:best]
+
+        babies = self.mate_in_pairs()
+        self.pop.extend(babies)
+        self.pop.extend(elite)
 
 
     def mate_in_pairs(self):     # Extracting the list of keys to access the creatures in order    keys = list(creatures_dict.keys())          # Iterate over the keys in steps of 2 to get pairsfor i in range(0, len(keys) - 1, 2):         creature1 = creatures_dict[keys[i]]         creature2 = creatures_dict[keys[i+1]]         creature1.mate(creature2)
         babies = []
 
-        for i in range(0, len(self.population) - 1, 2):
+
+    def mate_in_pairs(self):
+        babies = []
+        while len(babies) < (self.population_size-self.elite):
             game = SnakeGame()
             game2 = SnakeGame()
             controller = GAController(game)
             controller2 = GAController(game2)
-            dad = self.population[i]
-            mom = self.population[i+1]
+            dad = random.choice(self.population)
+            mom = random.choice(self.population)
             baby = dad.model + mom.model
             baby2 = dad.model + mom.model
-            baby.mutate(0.3)
-            baby2.mutate(0.3)
+            baby.mutate(0.08)
+            baby2.mutate(0.08)
             babies.append(controller)
             babies.append(controller2)
-        # print(babies)
         return babies
     def find_best_controller(self):
         print(self.population)
         sorted_population = sorted(self.population, key=lambda x: x.game.fitness, reverse=True)
         best_controllers = sorted_population[:30]
         for controller in best_controllers:
-            print(f"Controller fitness: {controller.game.fitness}")
+            print(f"Controller fitness: {controller.game.fitness}points:{controller.game.snake.score}")
         return best_controllers
 
 if __name__ == '__main__':
-    ga = GeneticAlgorithm(population_size=40, generations=200)
+    ga = GeneticAlgorithm(population_size=40, generations=20, elite=3)
     ga.initialize_population()
     # ga.print_fitness_values()
-    ga.evolve_generations()
-    ga.find_best_controller
+    ga.create_population()
+    ga.find_best_controller()
     # def evolve_generations_tournament(self):
     #     for _ in range(self.generations):
     #         self.print_fitness_values()
