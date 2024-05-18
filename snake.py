@@ -28,8 +28,8 @@ class SnakeGame:
             exploration = 100
 
 
-        self.step * steps_weight
         no_food_penalty = 1
+        self.step * steps_weight
         no_food = (-self.total_moves_no_food * no_food_penalty)
         score = self.snake.score * score_weight
         fitness = (score+no_food+exploration)
@@ -76,8 +76,8 @@ class SnakeGame:
                 self.snake.moves_without_food = 0
                 self.snake.step_game = 0
                 message = 'Game over! Took too many moves without eating!'
-        if self.snake.score > 0:
-            print(f'{message} ... Score: {self.snake.score}....')
+        # if self.snake.score > 0:
+        # print(f'{message} ... Score: {self.snake.score}....')
 
 
 class Food:
