@@ -7,16 +7,18 @@ from ga_models.ga_simple import SimpleModel
 import numpy
 
 class GAController(GameController):
-    def __init__(self, game, display=True):
+    def __init__(self, game, model=None, display=False):
         self.display = display
         self.game = game
         self.model =  SimpleModel(dims=(7,9,15,3), game=self.game )
         #set refrence inside the game object to the controller
         self.game.controller = self
+        # self.game.snake.controller = self
         # print(self.game.debug())
         # self.action_space = (Vector(0, -1), Vector(0, 1), Vector(1, 0), Vector(-1, 0))
         self.action_space = (Vector(0, -1), Vector(0, 1), Vector(1, 0), Vector(-1, 0))
-        print(self.game.controller)
+
+
         if self.display:
             pygame.init()
             self.screen = pygame.display.set_mode((game.grid.x * game.scale, game.grid.y * game.scale))
@@ -46,6 +48,8 @@ class GAController(GameController):
     def __del__(self):
         if self.display:
             pygame.quit()
+    def play_again(self):
+        self.game.run()
 
     def update(self) -> Vector:
         # observation space
@@ -59,14 +63,26 @@ class GAController(GameController):
         # delta food x and y
         dfx = self.game.snake.p.x - self.game.food.p.x
         dfy = self.game.snake.p.y - self.game.food.p.y
-
+        #made with @property so last_move is = last_move()
+        last_move = self.game.snake.last_move
+        # print(last_move)
         # score
         s = self.game.snake.score
 
-        obs = (dn, de, ds, dw, dfx, dfy, s)
-        print("obs:::::",obs)
+        if last_move is not None:
+            if last_move == Vector(0, -1):  # Last move was up
+                self.action_space = (Vector(-1, 0), Vector(1, 0), Vector(0, -1))  # Left, right, straight
+            elif last_move == Vector(0, 1):  # Last move was down
+                self.action_space = (Vector(1, 0), Vector(-1, 0), Vector(0, 1))  # Right, left, straight
+            elif last_move == Vector(-1, 0):  # Last move was left
+                self.action_space = (Vector(0, -1), Vector(0, 1), Vector(-1, 0))  # Straight, up, down
+            elif last_move == Vector(1, 0):  # Last move was right
+                self.action_space = (Vector(0, 1), Vector(0, -1), Vector(1, 0))  # Straight, down, up
 
-        # action space
+
+        obs = (dn, de, ds, dw, dfx, dfy, s)
+
+        # self.action_space = self.calculate_valid_moves()
 
         next_move = self.action_space[self.model.action(obs)]
 
@@ -107,4 +123,4 @@ class GAController(GameController):
         return
 
     def __str__(self):
-        return f"GAController(food={self.game.food},food={self.game.snake}, display={self.display})"
+        return f"__STR__:GAController(food={self.game.food},food={self.game.snake}, display={self.display})"

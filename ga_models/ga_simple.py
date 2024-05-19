@@ -21,7 +21,6 @@ class SimpleModel(GAModel):
         for i, dim in enumerate(dims):
             if i < len(dims) - 1:
                 number = np.random.rand(dim, dims[i+1])
-                print(number)
                 self.DNA.append(number)
 
 
@@ -80,6 +79,7 @@ class SimpleModel(GAModel):
     def __add__(self, other):
         baby_DNA = []
         for mom, dad in zip(self.DNA, other.DNA):
+            # random float between 0 and 1
             if random.random() > 0.5:
                 baby_DNA.append(mom)
             else:
