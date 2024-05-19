@@ -1,5 +1,6 @@
 # #!/usr/bin/env python
 
+import random
 from snake import SnakeGame
 from ga_controller import GAController
 
@@ -51,11 +52,16 @@ def mate_in_pairs(population):     # Extracting the list of keys to access the c
     return babies
 
 
+
+
 class GeneticAlgorithm:
     def __init__(self, population_size=10, generations=2):
         self.population_size = population_size
         self.generations = generations
         self.population = []
+        self.elite = 0
+        self.keep_ratio=0.3
+
 
     def initialize_population(self):
         population = []
@@ -85,10 +91,27 @@ class GeneticAlgorithm:
                 # if len(new_pop) > 0:
                 #     self.print_max_fitness_value(new_pop)
                 new_pop.append(controller)
+
+
+
+
+
+
+
+            #######################
             new_pop = sorted(new_pop, key=lambda x: x.game.fitness, reverse=True)
-            print("LENG",len(new_pop))
-            new_pop = new_pop[:len(new_pop) // 2]
-            self.print_fitness_values(new_pop)
+
+            elite = self.population[:self.elite]
+            del self.population[:self.elite]  # Extract elite elements
+            self.population = self.population[self.elite:]# removes from list
+            best = int(len(self.population) * self.keep_ratio)
+            del self.population[best:] # remove worst
+
+
+
+            # print("LENG",len(new_pop))
+            # new_pop = new_pop[:len(new_pop) // 2]
+            # self.print_fitness_values(new_pop)
             new_controllers = []
             new_models = mate_in_pairs(new_pop)
             for model in new_models:
@@ -98,9 +121,23 @@ class GeneticAlgorithm:
             print("new models",len(new_models))
             print("new controllers",len(new_controllers))
             #.append when make them contain the same objects
+
+            new_controllers.extend(elite)
             new_controllers.extend(new_pop)
             self.population = new_controllers
-
+    def mate_in_pairs(self):
+        babies = []
+        size = self.population_size - len(self.population)
+        size = size - self.elite
+        while len(babies) < size:
+            dad, mom = random.sample(self.population, 2)
+            baby = dad.model + mom.model
+            baby2 = dad.model + mom.model
+            baby.mutate(0.08)
+            baby2.mutate(0.08)
+            babies.append(baby)
+            babies.append(baby)
+        return babies
     def find_best_controller(self):
         sorted_population = sorted(self.population, key=lambda x: x.game.fitness, reverse=True)
         best_controllers = sorted_population[:30]
@@ -115,7 +152,7 @@ class GeneticAlgorithm:
 
 
 if __name__ == '__main__':
-    ga = GeneticAlgorithm(population_size=100, generations=200)
+    ga = GeneticAlgorithm(population_size=100, generations=3)
     ga.initialize_population()
     ga.evolve_generations()
     best_controllers = ga.find_best_controller()
