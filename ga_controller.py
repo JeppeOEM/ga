@@ -6,7 +6,7 @@ from game_controller import GameController
 from ga_models.ga_simple import SimpleModel
 
 class GAController(GameController):
-    def __init__(self, game, model=None, display=False):
+    def __init__(self, game, model=None, display=True):
         self.display = display
         self.game = game
         if model:
