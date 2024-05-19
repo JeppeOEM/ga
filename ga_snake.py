@@ -1,14 +1,10 @@
 # #!/usr/bin/env python
 
 import random
+import sys
 from snake import SnakeGame
 from ga_controller import GAController
 
-
-
-def print_max(population):
-        max_fitness = max(controller.game.fitness for controller in population)
-        print(f"Maximum fitness value of the current population: {max_fitness}")
 
 
 class GeneticAlgorithm:
@@ -25,6 +21,7 @@ class GeneticAlgorithm:
         #iterator
         self.i = 0
         self.display = False
+        self.elite_test = []
     def __str__(self):
         return f"population size:{self.population_size} generationss:{self.generations} keep_ration:{self.keep_ratio} elite:{self.elite} pop len: {len(self.population)}"
 
@@ -47,10 +44,11 @@ class GeneticAlgorithm:
                 print(gen,"s")
                 self.display = True
 
-
             i = 0
             new_pop = []
             for old_controller in self.population:
+
+                    old_controller
                     game = SnakeGame()
                     controller = GAController(game)
                     controller.model = old_controller.model
@@ -80,9 +78,7 @@ class GeneticAlgorithm:
             babies = self.mate_in_pairs()
             self.population.extend(babies)
             self.population.extend(elite)
-            # print("new born babies")
-            # self.print_best_snakes(self.population)
-            # print("new born babies")
+
 
     def mate_in_pairs(self):
         babies = []
@@ -98,20 +94,44 @@ class GeneticAlgorithm:
             baby2 = dad.model + mom.model
             baby.mutate(0.08)
             baby2.mutate(0.08)
+            controller.model = baby
+            controller2.model = baby2
             babies.append(controller)
             babies.append(controller2)
         return babies
 
     def print_best_snakes(self, population, iterator=0):
+        ids = []
         for i, pop in enumerate(population[:10], start=1):
             print(f"{i}# fitness: {pop.game.fitness} score: {pop.game.snake.score} steps: {pop.game.step}")
-            print(f"# wriggle score: {pop.game.snake.wriggle_score} repetition scores: {pop.game.snake.repetition_score}")
-            print("______________________________________________")
+            print(f"#id:{pop.model.word} wriggle score: {pop.game.snake.wriggle_score} repetition scores: {pop.game.snake.repetition_score}")
 
 
 if __name__ == '__main__':
-    ga = GeneticAlgorithm(population_size=60, generations=100, keep_ratio=0.3, elite=12)
+    ga = GeneticAlgorithm(population_size=60, generations=50, keep_ratio=0.3, elite=0)
     ga.initialize_population()
     ga.create_population()
     ga.print_best_snakes(ga.population)
     print(ga)
+
+
+        # duplicate_words = self.find_duplicate_words(population)
+
+    # def find_duplicate_words(self, objects):
+    #     seen_words = set()
+    #     duplicate_words = set()
+
+    #     for obj in objects:
+    #         if obj.model.word in seen_words:
+    #             duplicate_words.add(obj.model.word)
+    #         else:
+    #             seen_words.add(obj.model.word)
+    #     if duplicate_words:
+    #         print("Duplicate words found:", duplicate_words)
+    #     else:
+    #         print("No duplicate words found.")
+
+    #     print("______________________________________________")
+
+
+    #     return duplicate_words

@@ -31,15 +31,19 @@ class SnakeGame:
         same_move = -(self.snake.wriggle_score + self.snake.repetition_score) / 2
         rep_bonus = 0
         wrig_bonus = 0
-        if self.snake.wriggle_score == 0:
+        if self.snake.wriggle_score == 0 and self.snake.score > 0:
             wrig_bonus = 10
-        if self.snake.repetition_score == 0:
+        if self.snake.repetition_score == 0 and self.snake.score > 0:
             rep_bonus = 10
         # quick_food = self.quick_food * quick_food_weight
         # rep = (-self.snake.repetition_score / rep_weight)
         # death = -(self.death)
         score = (self.snake.score * score_weight)
-        fitness = (score+same_move+wrig_bonus+rep_bonus)
+        score2 = (self.snake.score / self.step) * 10
+        steptest = 0
+        if score and self.snake.repetition_score != 0:
+            steptest = self.step * 200
+        fitness = (score+same_move+wrig_bonus+rep_bonus+score2+steptest)
         if fitness < 0:
             fitness = 0
         return fitness
@@ -229,7 +233,7 @@ class Snake:
         if self.wriggle > 4:
             self.wriggle_score += 1
             self.wriggle = 0
-            print("Specific transition occurred more than 5 times")
+            # print("Specific transition occurred more than 5 times")
 
 
 

@@ -4,6 +4,12 @@ import numpy
 import numpy as np
 from ga_models.ga_protocol import GAModel
 from ga_models.activation import sigmoid, tanh, softmax
+import random
+import string
+
+
+# Generate a random 4-letter word
+
 
 
 class SimpleModel(GAModel):
@@ -12,12 +18,16 @@ class SimpleModel(GAModel):
         assert len(dims) >= 2, 'Error: dims must be two or higher.'
         self.dims = dims
         self.DNA = []
+        self.word = self.generate_random_word(6)
         for i, dim in enumerate(dims):
             if i < len(dims) - 1:
                 number = np.random.rand(dim, dims[i+1])
                 self.DNA.append(number)
 
 
+    def generate_random_word(self, length=4):
+        letters = string.ascii_lowercase  # Using lowercase letters
+        return ''.join(random.choice(letters) for _ in range(length))
 
     #the @ symbol is used for matrix multiplication when used between two arrays or matrices.
     #supported by libraries like NumPy.
