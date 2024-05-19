@@ -41,8 +41,8 @@ class SnakeGame:
         score = (self.snake.score * score_weight)
         score2 = (self.snake.score / self.step) * 10
         steptest = 0
-        if score and self.snake.repetition_score != 0:
-            steptest = self.step * 200
+        # if score and self.snake.repetition_score != 0:
+        #     steptest = self.step * 200
         fitness = (score+same_move+wrig_bonus+rep_bonus+score2+steptest)
         if fitness < 0:
             fitness = 0
@@ -53,7 +53,7 @@ class SnakeGame:
         # self.snake.debug()
 
         while running:
-            message=""
+
             # valid_moves = self.snake.calculate_valid_moves()
             next_move = self.controller.update()
             # print(next_move)
@@ -227,7 +227,11 @@ class Snake:
         specific_from_vector = Vector(0, -1)
         specific_to_vector = Vector(-1, 0)
 
+        specific_from_vector2 = Vector(0, -1)
+        specific_to_vector3 = Vector(-1, 0)
         if self.last_move == specific_from_vector and self.v == specific_to_vector:
+            self.wriggle += 1
+        if self.last_move == specific_from_vector2 and self.v == specific_to_vector3:
             self.wriggle += 1
 
         if self.wriggle > 4:
