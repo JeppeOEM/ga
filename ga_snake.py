@@ -25,6 +25,8 @@ class GeneticAlgorithm:
         #iterator
         self.i = 0
         self.display = False
+    def __str__(self):
+        return f"population size:{self.population_size} generationss:{self.generations} keep_ration:{self.keep_ratio} elite:{self.elite} pop len: {len(self.population)}"
 
     def initialize_population(self):
         for _ in range(self.population_size):
@@ -66,6 +68,7 @@ class GeneticAlgorithm:
 
             # Sort in best results self.populationulation by fitness
             self.population = sorted(self.population, key=lambda x: x.game.fitness, reverse=True)
+            print("best snakes of current run")
             self.print_best_snakes(self.population)
 
             elite = self.population[:self.elite]
@@ -80,11 +83,6 @@ class GeneticAlgorithm:
             # print("new born babies")
             # self.print_best_snakes(self.population)
             # print("new born babies")
-
-
-
-
-
 
     def mate_in_pairs(self):
         babies = []
@@ -107,10 +105,13 @@ class GeneticAlgorithm:
     def print_best_snakes(self, population, iterator=0):
         for i, pop in enumerate(population[:10], start=1):
             print(f"{i}# fitness: {pop.game.fitness} score: {pop.game.snake.score} steps: {pop.game.step}")
+            print(f"# wriggle score: {pop.game.snake.wriggle_score} repetition scores: {pop.game.snake.repetition_score}")
+            print("______________________________________________")
 
 
 if __name__ == '__main__':
-    ga = GeneticAlgorithm(population_size=50, generations=10, elite=0)
+    ga = GeneticAlgorithm(population_size=60, generations=100, keep_ratio=0.3, elite=12)
     ga.initialize_population()
     ga.create_population()
     ga.print_best_snakes(ga.population)
+    print(ga)

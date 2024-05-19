@@ -28,13 +28,18 @@ class SnakeGame:
         exploration = 0
         quick_food_weight = 200
         rep_weight = 10
-        same_move = -(self.snake.wriggle_score + self.snake.repetition_score)
-
+        same_move = -(self.snake.wriggle_score + self.snake.repetition_score) / 2
+        rep_bonus = 0
+        wrig_bonus = 0
+        if self.snake.wriggle_score == 0:
+            wrig_bonus = 10
+        if self.snake.repetition_score == 0:
+            rep_bonus = 10
         # quick_food = self.quick_food * quick_food_weight
         # rep = (-self.snake.repetition_score / rep_weight)
-        death = -(self.death)
+        # death = -(self.death)
         score = (self.snake.score * score_weight)
-        fitness = (score+death+death+same_move)
+        fitness = (score+same_move+wrig_bonus+rep_bonus)
         if fitness < 0:
             fitness = 0
         return fitness
@@ -129,10 +134,10 @@ class Snake:
             raise ValueError(f"Unknown direction for vector {vector}")
 
     def same_direction_count(self):
-        print("Move this way",self.v,"last move",self.last_move)
+        # print("Move this way",self.v,"last move",self.last_move)
         if self.last_move is not None and self.direction(self.v) == self.direction(self.last_move):
             self.repetition_count += 1
-            print(self.repetition_count)
+            # print(self.repetition_count)
             if self.repetition_count > 11:
                 self.repetition_score +=1
                 self.repetition_count = 0
@@ -163,9 +168,9 @@ class Snake:
         self.same_direction_count()
         self.wriggle_walk()
 
-        print("rep current",self.repetition_count)
-        print("rep score",self.repetition_score)
-        print("wriggle score", self.wriggle_score)
+        # print("rep current",self.repetition_count)
+        # print("rep score",self.repetition_score)
+        # print("wriggle score", self.wriggle_score)
         # self.opposite_direction_count()
         # if self.last_move is not None and self.v != self.last_move:
         #     self.direction_changes += 1
@@ -221,7 +226,7 @@ class Snake:
         if self.last_move == specific_from_vector and self.v == specific_to_vector:
             self.wriggle += 1
 
-        if self.wriggle > 5:
+        if self.wriggle > 4:
             self.wriggle_score += 1
             self.wriggle = 0
             print("Specific transition occurred more than 5 times")
