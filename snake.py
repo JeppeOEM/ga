@@ -32,13 +32,6 @@ class SnakeGame:
             elif self.step > 40 and self.snake.repetition_count < 1:
                 bonus+= 0.01
 
- # Neutral fitness if neither condition is met
-        # if self.snake.score > 2:
-        #     score_weight += 20
-        # if self.snake.wriggle_score > 4:
-        #     return 0
-        # if self.snake.score > 0 and self.step < 35:
-        #     return 0
 
         if self.step > 40 and self.snake.wriggle_score < 1 and self.snake.score > 0:
             bonus+=1
@@ -46,9 +39,7 @@ class SnakeGame:
             bonus+=20
         if self.quick_food > 0:
             bonus+=10
-        # extrabonus=0
-        # if self.snake.score > 1:
-        #     extrabonus+=50
+
         fit = 0
         negative_sum = -1 * (self.snake.repetition_count + self.snake.wriggle_score)
         fit = bonus+negative_sum
@@ -59,7 +50,7 @@ class SnakeGame:
 
         return fit
 
-    #     return fitness
+
 
     def run(self):
         running = True
@@ -158,43 +149,12 @@ class Snake:
             # print(self.repetition_count)
 
 
-    def opposite_direction_count(self):
-        opposite_direction = {
-            'NORTH': 'SOUTH',
-            'EAST': 'WEST',
-            'SOUTH': 'NORTH',
-            'WEST': 'EAST'
-        }
-
-        if self.last_move is not None:
-            current_direction = self.direction(self.v)
-            last_direction = self.direction(self.last_move)
-            print("last",self.v)
-            print("last2",self.last_move)
-            if current_direction == opposite_direction.get(last_direction):
-                self.opposite_move_count += 1
-                print(self.opposite_direction_count)
-
-
-
     def move(self):
         self.same_direction_count()
         self.wriggle_walk()
-
-        # print("rep current",self.repetition_count)
-        # print("rep score",self.repetition_count)
-        # print("wriggle score", self.wriggle_score)
-        # self.opposite_direction_count()
-        # if self.last_move is not None and self.v != self.last_move:
-        #     self.direction_changes += 1
-        # if self.opposite_move_count > 5:
-        #     valid_moves = self.calculate_valid_moves()
-        #     current_direction = self.direction(self.v)
-        #     self.v = self.choose_valid_move(valid_moves, current_direction)
         self.p = self.p + self.v
-        # print("MOVE",self.last_move,self.v)
         self.last_move = self.v
-        # print("current",self.v, "last",self.last_move)
+
 
     @property
     def get_score(self):
@@ -246,26 +206,4 @@ class Snake:
         if self.wriggle > 2:
             self.wriggle_score += 1
             self.wriggle = 0
-            # print("Specific transition occurred more than 5 times")
-
-
-
-    def choose_valid_move(self, valid_moves: List[Vector], current_direction: str) -> Vector:
-        """
-        Choose a valid move that is not opposite to the current direction.
-        """
-        opposite_direction = {
-            'NORTH': Vector(0, -1),
-            'EAST': Vector(-1, 0),
-            'SOUTH': Vector(0, 1),
-            'WEST': Vector(1, 0)
-        }
-
-        # Include the current direction but exclude the opposite direction
-        valid_moves = [move for move in valid_moves if move != opposite_direction[current_direction] or move == self.v]
-
-        # If no valid moves remain, just return the current direction (safe fallback)
-        if not valid_moves:
-            return self.v
-
-        return random.choice(valid_moves)
+            # print("Specific move occurred more than 5 times")

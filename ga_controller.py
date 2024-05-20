@@ -77,15 +77,6 @@ class GAController(GameController):
         next_move = self.action_space[self.model.action(obs)]
 
 
-        # If the next move is not valid, choose a random valid move
-        # if next_move not in valid_moves:
-        #     next_move = random.choice(valid_moves)
-        # action space
-
-        # print(next_move)
-        # test=self.model.action(obs)
-        # print("next",test)
-        # next_move = self.action_space[test]
 
         # display
         if self.display:
@@ -103,12 +94,11 @@ class GAController(GameController):
                 self.game.scale,
                 self.game.scale)
 
-    # def action_space(self, obj):
-    #     return
+
     def calculate_valid_moves(self) -> Tuple[Vector, ...]:
-        """
-        Calculate valid moves based on the current state of the snake.
-        """
+
+        # Calculate valid moves based on the current state of the snake.
+
         if self.game.snake.last_move is None:
             return ()  # Return an empty tuple if last move is None
         else:
@@ -118,22 +108,22 @@ class GAController(GameController):
         valid_moves = ()
 
         # Check if moving up is valid
-        if last_move != Vector(0, -1):  # Ensure it's not moving downwards
+        if last_move != Vector(0, -1):
             move_up = Vector(0, 1)
             valid_moves += (move_up,)
 
         # Check if moving down is valid
-        if last_move != Vector(0, 1):  # Ensure it's not moving upwards
+        if last_move != Vector(0, 1):
             move_down = Vector(0, -1)
             valid_moves += (move_down,)
 
         # Check if moving left is valid
-        if last_move != Vector(1, 0):  # Ensure it's not moving right
+        if last_move != Vector(1, 0):
             move_left = Vector(-1, 0)
             valid_moves += (move_left,)
 
         # Check if moving right is valid
-        if last_move != Vector(-1, 0):  # Ensure it's not moving left
+        if last_move != Vector(-1, 0):
             move_right = Vector(1, 0)
             valid_moves += (move_right,)
 

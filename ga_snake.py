@@ -4,51 +4,9 @@ import random
 from snake import SnakeGame
 from ga_controller import GAController
 
-# def kill_half(sorted_list):
-#     # Calculate the index to start slicing from
-#     sorted()
-#     index_to_remove = len(sorted_list) // 2
-#     # Slice the list to remove the lowest values
-#     result = sorted_list[index_to_remove:]
-#     return result
 
-# def remove_lowest_values(sorted_list):
-#     # Calculate the index to start slicing from
-#     index_to_remove = len(sorted_list) // 2
-#     # Slice the list to remove the lowest values
-#     result = sorted_list[index_to_remove:]
-#     return result
-
-# population = []
-
-# def get_fitness(game):
-#     return game.fitness
-
-# # Create 100 instances of the Snake game and add them to the population
-
-# # for _ in range(1000):
-# #     game = SnakeGame()
-# #     controller = GAController(game)
-# #     population.append(controller)
-# #     game.run()
-
-
-
-# def mate_in_pairs(population):     # Extracting the list of keys to access the creatures in order    keys = list(creatures_dict.keys())          # Iterate over the keys in steps of 2 to get pairsfor i in range(0, len(keys) - 1, 2):         creature1 = creatures_dict[keys[i]]         creature2 = creatures_dict[keys[i+1]]         creature1.mate(creature2)
-#     babies = []
-#     for i in range(0, len(population) - 1, 2):
-#         dad = population[i]
-#         mom = population[i+1]
-#         baby = dad.model + mom.model
-#         baby2 = dad.model + mom.model
-#         baby.mutate(0.05)
-#         baby2.mutate(0.05)
-#         babies.append(baby)
-#         babies.append(baby2)
-#     # print(babies)
-#     return babies
-
-def have_same_object_id(list1, list2):
+# For debugging the elite
+def same_object_id(list1, list2):
     # Create sets of object IDs for both lists
     ids_list1 = {id(obj): obj for obj in list1}
     ids_list2 = {id(obj): obj for obj in list2}
@@ -96,8 +54,8 @@ class GeneticAlgorithm:
 
 
         for _ in range(self.generations):
+            # for debugging
             # for controller in self.population:
-
             #         print("GEN")
             #         print(f"# step: {controller.game.step} fitness {controller.game.fitness} score: {controller.game.snake.score} ")
             #         print("GEN")
@@ -109,29 +67,27 @@ class GeneticAlgorithm:
                 game.controller = controller
                 controller.game = game
                 game.run()
+                # for debugging
                 # print(controller.game.fitness)
                 # if len(new_pop) > 0:
                 #     self.print_max_fitness_value(new_pop)
                 new_pop.append(controller)
 
-            #######################
             new_pop = sorted(new_pop, key=lambda x: x.game.fitness, reverse=True)
+            # For debugging
             # self.print_edge("first",new_pop)
             if self.elite > 0:
                 elite = new_pop[:self.elite]
                 del new_pop[-self.elite:]
                 new_pop.extend(elite)
+            # for debugging
             # self.print_edge("first",new_pop)
             # self.print_controller(new_pop)
             # new_pop = new_pop[self.elite:]# removes from list
             best = int(len(new_pop) * self.keep_ratio)
             del new_pop[best:] # remove worst slices to the end of list
             self.print_controller(new_pop)
-            # if self.elite > 0:
-            #     have_same_object_id(elite, new_pop)
-            # print("LENG",len(new_pop))
-            # new_pop = new_pop[:len(new_pop) // 2]
-            # self.print_fitness_values(new_pop)
+
             new_controllers = []
 
             new_models = self.mate_in_pairs(new_pop)
@@ -139,8 +95,6 @@ class GeneticAlgorithm:
                 game = SnakeGame()
                 controller = GAController(game, model=model)
                 new_controllers.append(controller)
-            # print("new models",len(new_models))
-            #.append when make them contain the same objects
 
             new_controllers.extend(new_pop)
             self.population = new_controllers
@@ -175,10 +129,10 @@ class GeneticAlgorithm:
 
         print(f"Controller:step:{controller.game.step} score {controller.game.snake.score} Fitness = {controller.game.fitness} repetion steps{controller.game.snake.repetition_count} wriggle:{controller.game.snake.wriggle_score}")
 
-    def print_edge(self, extreme_type, population):
-        if extreme_type == "first":
+    def print_edge(self, first_last, population):
+        if first_last == "first":
             controller = population[0]
-        elif extreme_type == "last":
+        elif first_last == "last":
             controller = population[-1]
         else:
             raise ValueError("Invalid extreme type. Use 'first' or 'last'.")
@@ -193,11 +147,3 @@ if __name__ == '__main__':
     ga.initialize_population()
     ga.evolve_generations()
     ga.print_fitness_values(ga.population)
-    # ga.print_max_fitness_value(ga.population)
-    # best_controllers = ga.find_best_controller()
-    # for i, controller in enumerate(best_controllers, start=1):
-    #         print(f"{i}# fit {controller.game.fitness} score: {controller.game.snake.score} steps: {controller.game.step}wriggle score: {controller.game.snake.wriggle_score} repetition scores: {controller.game.snake.repetition_score}")
-
-
-
-    # print("Best Controller Fitness:", best_controller.game.fitness)
