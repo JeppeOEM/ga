@@ -19,34 +19,56 @@ class SnakeGame:
         self.quick_food = 0
 
 
-
     @property
     def fitness(self):
-        score_weight = 200
-        steps_weight = 0.1
-        death_penalty = 0.1
-        exploration = 0
-        quick_food_weight = 200
-        rep_weight = 10
-        same_move = -(self.snake.wriggle_score + self.snake.repetition_score) / 2
-        rep_bonus = 0
-        wrig_bonus = 0
-        if self.snake.wriggle_score == 0 and self.snake.score > 0:
-            wrig_bonus = 10
-        if self.snake.repetition_score == 0 and self.snake.score > 0:
-            rep_bonus = 10
-        # quick_food = self.quick_food * quick_food_weight
-        # rep = (-self.snake.repetition_score / rep_weight)
-        # death = -(self.death)
-        score = (self.snake.score * score_weight)
-        score2 = (self.snake.score / self.step) * 10
-        steptest = 0
-        # if score and self.snake.repetition_score != 0:
-        #     steptest = self.step * 200
-        fitness = (score+same_move+wrig_bonus+rep_bonus+score2+steptest)
-        if fitness < 0:
-            fitness = 0
-        return fitness
+        score_weight= 100
+        if self.snake.score == 0:
+            if self.snake.repetition_count > 8:
+                return -1  # or handle this case according to your logic
+            else:
+                return 0
+        # if self.snake.score > 2:
+        #     score_weight += 20
+        if self.snake.wriggle_score > 4:
+            return 0
+        bonus = 0
+        if self.step > 40:
+            bonus+=1
+        extrabonus=0
+        if self.snake.score > 1:
+            extrabonus+=50
+        fit = (self.step / (self.snake.score+0.1 * score_weight))+extrabonus
+        fit = (fit+bonus)-((self.snake.repetition_count+self.snake.wriggle_score)/2)
+        fit
+        return fit
+    # @property
+    # def fitness(self):
+    #     score_weight = 200
+    #     steps_weight = 0.1
+    #     death_penalty = 0.1
+    #     exploration = 0
+    #     quick_food_weight = 200
+    #     rep_weight = 10
+    #     # same_move = -(self.snake.wriggle_score + self.snake.repetition_count) / 2
+    #     # rep_bonus = 0
+    #     # wrig_bonus = 0
+    #     # if self.snake.wriggle_score == 0 and self.snake.score > 0:
+    #     #     wrig_bonus = 10
+    #     # if self.snake.repetition_count == 0 and self.snake.score > 0:
+    #     #     rep_bonus = 10
+    #     # # quick_food = self.quick_food * quick_food_weight
+    #     # # rep = (-self.snake.repetition_count / rep_weight)
+    #     # # death = -(self.death)
+    #     score = (self.snake.score * score_weight)
+    #     # score2 = (self.snake.score / self.step) * 10
+    #     # steptest = 0
+    #     # # if score and self.snake.repetition_count != 0:
+    #     # #     steptest = self.step * 200
+    #     fitness = score
+    #     # fitness = fitness+self.snake.score
+    #     if fitness < 0:
+    #         fitness = 0
+    #     return fitness
 
     def run(self):
         running = True
@@ -120,7 +142,7 @@ class Snake:
         self.max_moves_without_food = 200
         self.step_game = 0
         self.repetition_count = 0
-        self.repetition_score = 0
+        self.repetition_count = 0
         self.wriggle = 0
         self.wriggle_score = 0
     def direction(self, vector):
@@ -142,11 +164,6 @@ class Snake:
         if self.last_move is not None and self.direction(self.v) == self.direction(self.last_move):
             self.repetition_count += 1
             # print(self.repetition_count)
-            if self.repetition_count > 11:
-                self.repetition_score +=1
-                self.repetition_count = 0
-        else:
-            self.repetition_count = 0  # Reset if direction changes
 
 
     def opposite_direction_count(self):
@@ -160,8 +177,8 @@ class Snake:
         if self.last_move is not None:
             current_direction = self.direction(self.v)
             last_direction = self.direction(self.last_move)
-            print(self.v)
-            print(self.last_move)
+            print("last",self.v)
+            print("last2",self.last_move)
             if current_direction == opposite_direction.get(last_direction):
                 self.opposite_move_count += 1
                 print(self.opposite_direction_count)
@@ -173,7 +190,7 @@ class Snake:
         self.wriggle_walk()
 
         # print("rep current",self.repetition_count)
-        # print("rep score",self.repetition_score)
+        # print("rep score",self.repetition_count)
         # print("wriggle score", self.wriggle_score)
         # self.opposite_direction_count()
         # if self.last_move is not None and self.v != self.last_move:
@@ -234,7 +251,7 @@ class Snake:
         if self.last_move == specific_from_vector2 and self.v == specific_to_vector3:
             self.wriggle += 1
 
-        if self.wriggle > 4:
+        if self.wriggle > 2:
             self.wriggle_score += 1
             self.wriggle = 0
             # print("Specific transition occurred more than 5 times")
