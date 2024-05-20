@@ -21,16 +21,16 @@ class SnakeGame:
 
     @property
     def fitness(self):
-        score_weight= 100
+        score_weight= 50
         bonus = 0
         if self.snake.score == 0:
             if self.snake.repetition_count > 8 \
                 or self.snake.wriggle_score > 6:
                 return -1
-            elif self.step > 40 and self.snake.wriggle_score < 1:
-                bonus+= 0.01
-            elif self.step > 40 and self.snake.repetition_count < 1:
-                bonus+= 0.01
+            elif self.step > 60 and self.snake.wriggle_score < 1:
+                bonus+= 0.001
+            elif self.step > 60 and self.snake.repetition_count < 1:
+                bonus+= 0.001
 
  # Neutral fitness if neither condition is met
         # if self.snake.score > 2:
@@ -40,8 +40,6 @@ class SnakeGame:
         # if self.snake.score > 0 and self.step < 35:
         #     return 0
 
-        if self.step > 40 and self.snake.wriggle_score < 1 and self.snake.score > 0:
-            bonus+=1
         if self.quick_food > 1 and self.snake.wriggle_score < 1 and self.snake.repetition_count < 1:
             bonus+=20
         if self.quick_food > 0:
@@ -50,11 +48,14 @@ class SnakeGame:
         # if self.snake.score > 1:
         #     extrabonus+=50
         fit = 0
+        if self.snake.wriggle_score < 4 and self.snake.repetition_count < 8:
+            fit = fit+(self.step/2)
         negative_sum = -1 * (self.snake.repetition_count + self.snake.wriggle_score)
         fit = bonus+negative_sum
         if self.snake.score > 0:
             fit = fit+self.step / (self.snake.score * score_weight)
-            # fit = fit+(self.step*1)
+            fit = fit+(self.snake.score * score_weight)
+            # fit = fit+(self.step*0.1)
 
 
         return fit
@@ -133,7 +134,6 @@ class Snake:
         self.direction_changes = 0
         self.max_moves_without_food = 200
         self.step_game = 0
-        self.repetition_count = 0
         self.repetition_count = 0
         self.wriggle = 0
         self.wriggle_score = 0

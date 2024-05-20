@@ -189,7 +189,7 @@ class GeneticAlgorithm:
 
 
 if __name__ == '__main__':
-    ga = GeneticAlgorithm(population_size=50, generations=100, keep_ratio=0.2, elite=4)
+    ga = GeneticAlgorithm(population_size=50, generations=100, keep_ratio=0.1, elite=2)
     ga.initialize_population()
     ga.evolve_generations()
     ga.print_fitness_values(ga.population)
