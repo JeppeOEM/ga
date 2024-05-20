@@ -24,7 +24,7 @@ class SimpleModel(GAModel):
     def update(self, obs: Sequence) -> Tuple[int, ...]:
         x = obs
         for i, layer in enumerate(self.DNA):
-
+            # layer 0 should not be destroyed by tanh as it contains the raw data
             if not i == 0:
                 #tanh = hyperbolic tangent function
                 #often used as a activation fucntion ranges from -1 to 1

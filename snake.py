@@ -22,52 +22,43 @@ class SnakeGame:
     @property
     def fitness(self):
         score_weight= 100
+        bonus = 0
         if self.snake.score == 0:
-            if self.snake.repetition_count > 8:
-                return -1  # or handle this case according to your logic
-            else:
-                return 0
+            if self.snake.repetition_count > 8 \
+                or self.snake.wriggle_score > 6:
+                return -1
+            elif self.step > 40 and self.snake.wriggle_score < 1:
+                bonus+= 0.01
+            elif self.step > 40 and self.snake.repetition_count < 1:
+                bonus+= 0.01
+
+ # Neutral fitness if neither condition is met
         # if self.snake.score > 2:
         #     score_weight += 20
-        if self.snake.wriggle_score > 4:
-            return 0
-        bonus = 0
-        if self.step > 40:
+        # if self.snake.wriggle_score > 4:
+        #     return 0
+        # if self.snake.score > 0 and self.step < 35:
+        #     return 0
+
+        if self.step > 40 and self.snake.wriggle_score < 1 and self.snake.score > 0:
             bonus+=1
-        extrabonus=0
-        if self.snake.score > 1:
-            extrabonus+=50
-        fit = (self.step / (self.snake.score+0.1 * score_weight))+extrabonus
-        fit = (fit+bonus)-((self.snake.repetition_count+self.snake.wriggle_score)/2)
-        fit
+        if self.quick_food > 1 and self.snake.wriggle_score < 1 and self.snake.repetition_count < 1:
+            bonus+=20
+        if self.quick_food > 0:
+            bonus+=10
+        # extrabonus=0
+        # if self.snake.score > 1:
+        #     extrabonus+=50
+        fit = 0
+        negative_sum = -1 * (self.snake.repetition_count + self.snake.wriggle_score)
+        fit = bonus+negative_sum
+        if self.snake.score > 0:
+            fit = fit+self.step / (self.snake.score * score_weight)
+            # fit = fit+(self.step*1)
+
+
         return fit
-    # @property
-    # def fitness(self):
-    #     score_weight = 200
-    #     steps_weight = 0.1
-    #     death_penalty = 0.1
-    #     exploration = 0
-    #     quick_food_weight = 200
-    #     rep_weight = 10
-    #     # same_move = -(self.snake.wriggle_score + self.snake.repetition_count) / 2
-    #     # rep_bonus = 0
-    #     # wrig_bonus = 0
-    #     # if self.snake.wriggle_score == 0 and self.snake.score > 0:
-    #     #     wrig_bonus = 10
-    #     # if self.snake.repetition_count == 0 and self.snake.score > 0:
-    #     #     rep_bonus = 10
-    #     # # quick_food = self.quick_food * quick_food_weight
-    #     # # rep = (-self.snake.repetition_count / rep_weight)
-    #     # # death = -(self.death)
-    #     score = (self.snake.score * score_weight)
-    #     # score2 = (self.snake.score / self.step) * 10
-    #     # steptest = 0
-    #     # # if score and self.snake.repetition_count != 0:
-    #     # #     steptest = self.step * 200
-    #     fitness = score
-    #     # fitness = fitness+self.snake.score
-    #     if fitness < 0:
-    #         fitness = 0
+
     #     return fitness
 
     def run(self):
@@ -96,6 +87,7 @@ class SnakeGame:
                 message = 'Game over! You crashed into the wall!'
                 self.death += 1
                 self.snake.step_game = 0
+
                 # self.snake.moves_without_food = 0
             if self.snake.cross_own_tail:
                 running = False
@@ -106,7 +98,7 @@ class SnakeGame:
                 self.snake.add_score()
                 self.food = Food(game=self)
                 self.snake.moves_without_food - 5
-                if self.snake.step_game > 20:
+                if self.step > 20:
                     self.quick_food += 1
                 # self.snake.moves_without_food = 0
                 message = 'Yum 1 food eaten'

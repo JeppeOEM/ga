@@ -12,7 +12,7 @@ class GAController(GameController):
         if model:
             self.model = model  # Use the provided model
         else:
-            self.model = SimpleModel(dims=(7, 9, 15, 3))
+            self.model = SimpleModel(dims=(11, 9, 15, 3))
         #set refrence inside the game object to the controller
         self.game.controller = self
         # self.game.snake.controller = self
@@ -64,8 +64,13 @@ class GAController(GameController):
             elif last_move == Vector(1, 0):  # Last move was right
                 self.action_space = (Vector(0, 1), Vector(0, -1), Vector(1, 0))  # Straight, down, up
 
-
-        obs = (dn, de, ds, dw, dfx, dfy, s)
+    # Threats from borders: 1 if next to border, 0 otherwise
+        tn = 1 if self.game.snake.p.y == 0 else 0  # Top border
+        te = 1 if self.game.snake.p.x == self.game.grid.x - 1 else 0  # Right border
+        ts = 1 if self.game.snake.p.y == self.game.grid.y - 1 else 0  # Bottom border
+        tw = 1 if self.game.snake.p.x == 0 else 0  # Left border
+        obs = (dn, de, ds, dw, dfx, dfy,tn,te,ts,tw, s)
+        # print("north:",dn,"east:", de, "sourth",ds,"west", dw, dfx, dfy, s)
 
         # self.action_space = self.calculate_valid_moves()
 
